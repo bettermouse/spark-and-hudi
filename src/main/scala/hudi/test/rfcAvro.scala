@@ -3,20 +3,6 @@ package hudi.test
 import org.apache.spark.sql.SparkSession
 import org.scalatest.funsuite.AnyFunSuite
 
-/**
- * <pre>
- * *********************************************
- * Copyright sf-express.
- * All rights reserved.
- * Description: 
- * HISTORY
- * *********************************************
- * ID   DATE               PERSON             REASON
- * 1   2023/2/20 10:32     01407273            Create
- *
- * *********************************************
- * </pre>
- */
 class rfcAvro   extends AnyFunSuite{
  // val dataGen = new DataGenerator
   val spark = SparkSession.builder()
