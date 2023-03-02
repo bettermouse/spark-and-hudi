@@ -81,3 +81,17 @@ https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Availa
       </plugin>
 ```
 mvn validate 
+
+
+# ubuntu slow
+cat /proc/sys/vm/swappiness
+sudo sysctl vm.swappiness=20
+sudo gedit /etc/sysctl.conf
+vm.swappiness=20
+
+
+# ssh proxy
+sshpass -p 'Qq5375631' ssh -D 8888  -N -f  -C root@8.219.174.169
+
+
+mvn clean install -DskipTests -Dscala-2.12
