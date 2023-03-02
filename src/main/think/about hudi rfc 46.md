@@ -97,3 +97,12 @@ Previously, we used to have separate methods for merging:
 preCombine was used to either deduplicate records in a batch or merge ones coming from delta-logs, while
 combineAndGetUpdateValue was used to combine incoming record w/ the one persisted in storage
 ```
+
+## HoodieInternalRow extends InternalRow
+Hudi internal implementation of the InternalRow allowing to extend arbitrary
+ InternalRow overlaying Hudi-internal meta-fields on top of it. 
+ Capable of overlaying meta-fields in both cases: 
+ whether original sourceRow contains meta columns or not. 
+ This allows to handle following use-cases allowing to avoid any manipulation (reshuffling) of the source row, by simply creating new instance of HoodieInternalRow with all the meta-values provided
+When meta-fields need to be prepended to the source InternalRow
+When meta-fields need to be updated w/in the source InternalRow (UnsafeRow currently does not allow in-place updates due to its memory layout)
