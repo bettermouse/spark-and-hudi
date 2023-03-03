@@ -40,3 +40,25 @@ sub-task can be reported and the current global minimum/maximum watermark
 can be retrieved so that each source can adjust their partition read rates 
 in an attempt to keep sources roughly aligned in event time.
 
+step 1 
+job master add method 
+```
+    private final Map<String, Object> accumulators;
+```
+JobMasterGateway  add method
+RpcGlobalAggregateManager encapsulate 封装了taskmanager对jobManager的调用 
+GlobalAggregateManager just a interface
+用这个做watermark的优先级
+https://issues.apache.org/jira/browse/FLINK-31183?jql=project%20%3D%20FLINK%20AND%20component%20%3D%20%22Connectors%20%2F%20Kinesis%22
+
+in taskExecutor,we need get this Manager,pass it to operator.
+in org.apache.flink.runtime.taskmanager.Task ,we get this manager,then construct RuntimeEnvironment,
+ 
+ 
+when use it,We must use enviroment.so let us see how to use it 
+in test class GlobalAggregateITCase
+```
+    public GlobalAggregateManager getGlobalAggregateManager() {
+        return taskEnvironment.getGlobalAggregateManager();
+    }
+```

@@ -28,6 +28,52 @@ https://blog.csdn.net/czladamling/article/details/125204087
   }
 ```
 
+MiniCluster
+MiniClusterClient
+## AMRMClientAsync
+通过yarn的 api 向yarn申请资源,具体的同spark 类似.
+
+# rpc 
+RpcService
+AkkaRpcService
+
+rcp是通过动态代理来实现的 InvocationHandler
+
+# Task JobMaster debug
+## TaskExecutor taskManager start taskExecutor
+
+org.apache.flink.runtime.minicluster.MiniCluster#startTaskManager
+```
+public void startTaskManager() throws Exception {
+    synchronized (lock) {
+        final Configuration configuration = miniClusterConfiguration.getConfiguration();
+
+        final TaskExecutor taskExecutor =
+                TaskManagerRunner.startTaskManager(
+                        configuration,
+                        new ResourceID(UUID.randomUUID().toString()),
+                        taskManagerRpcServiceFactory.createRpcService(),
+                        haServices,
+                        heartbeatServices,
+                        metricRegistry,
+                        blobCacheService,
+                        useLocalCommunication(),
+                        ExternalResourceInfoProvider.NO_EXTERNAL_RESOURCES,
+                        taskManagerTerminatingFatalErrorHandlerFactory.create(
+                                taskManagers.size()));
+
+        taskExecutor.start();
+        taskManagers.add(taskExecutor);
+    }
+}
+```
+org.apache.flink.runtime.taskexecutor.TaskManagerRunner
+org.apache.flink.runtime.taskexecutor.TaskManagerRunner#createTaskExecutorService
+https://blog.csdn.net/wuxintdrh/article/details/127910339
+
+## 启动了taskExecutor
+debug 看谁提交了task
+org.apache.flink.runtime.taskexecutor.TaskExecutor#submitTask
 
 # other
 
