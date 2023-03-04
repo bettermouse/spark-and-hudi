@@ -106,3 +106,22 @@ Hudi internal implementation of the InternalRow allowing to extend arbitrary
  This allows to handle following use-cases allowing to avoid any manipulation (reshuffling) of the source row, by simply creating new instance of HoodieInternalRow with all the meta-values provided
 When meta-fields need to be prepended to the source InternalRow
 When meta-fields need to be updated w/in the source InternalRow (UnsafeRow currently does not allow in-place updates due to its memory layout)
+
+
+# 问题
+## 1
+kyro序列化InternalRow为什么没有写,肯定是在spark中已经加了
+```
+  protected final void writeRecordPayload(InternalRow payload, Kryo kryo, Output output) {
+    // NOTE: [[payload]] could be null if record has already been deflated
+    UnsafeRow unsafeRow = convertToUnsafeRow(payload, schema);
+
+    kryo.writeObjectOrNull(output, unsafeRow, UnsafeRow.class);
+  }
+```
+//todo
+没前没有发现,需要在新版本中debug一下,看它的序列化是否花费了多余的数据
+//这个写文档了吗
+put("spark.kryo.registrator", "org.apache.spark.HoodieSparkKryoRegistrar")
+
+## 2.

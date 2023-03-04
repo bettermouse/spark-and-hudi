@@ -1,12 +1,33 @@
 # spark sql
+## TreeNode 
+abstract class TreeNode[BaseType <: TreeNode[BaseType]] extends Product with TreePatternBits {
+treeNode是一个自限定类型,它的泛型只能是它自身
+### Expression
+### QueryPlan
+#### SparkPlan
+
+```
+  /**
+   * Produces the result of the query as an `RDD[InternalRow]`
+   *
+   * Overridden by concrete implementations of SparkPlan.
+   */
+  protected def doExecute(): RDD[InternalRow]
+```
+#### LogicalPlan
 ## 全阶段代码生成
-spark.sql.codegen.wholeStage 
+spark.sql.codegen.wholeStage 默认为true
+
 ##  物理执行计划
+### 生成
 org.apache.spark.sql.execution.SparkStrategy
+### sparkPlain
 
 ## 物理和logical plan的对应关系
-LogicalRDD -> RDDScanExec
 
+spark.internalCreateDataFrame(rdd, schema)
+LogicalRDD -> RDDScanExec
+为什么全代码生成开启后,RDDScanExec中的doExecute()没有被调用
 
 
 ## unsafeRow
