@@ -14,3 +14,4 @@ multiplexed  多路复用 mult
 contract 合同，契约 收缩，缩小
 contradict 反驳，否认
 obviate 排除；避免；消除
+scalable 可攀登的；可去鳞的；可称量的

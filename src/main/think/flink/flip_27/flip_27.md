@@ -50,6 +50,39 @@ Perform record parsing and conversion.
 Extract timestamps and optionally deal with watermarks. A followup FLIP will provide some default behaviors for users to deal with their watermark.
 ### flip-126
 https://cwiki.apache.org/confluence/display/FLINK/FLIP-126%3A+Unify+%28and+separate%29+Watermark+Assigners
+
+## go on
+Some brief explanations:
+
+When a new split is added to the SourceReader by SplitEnumerator, the initial state of that new split is put into a state map maintained by the SourceReaderBase before the split is assigned to a SplitReader.
+The records are passed from the the SplitReaders to the RecordEmitter in RecordsBySplitIds. This allows the SplitReader to enqueue records in a batch manner, which benefits performance.
+The SourceReaderBase iterates over each records and looks up their corresponding split state. The Record and its corresponding split state is passed to the RecordEmitter.
+
+The SourceReaderBase iterates over each records and looks up their corresponding split state. The Record and its corresponding split state is passed to the RecordEmitter.
+## Failover
+SourceReader 状态
+The assigned splits
+The state of the splits (e.g. Kafka offsets, HDFS file offset, etc)
+##  SplitEnumerator 状态 
+The unassigned splits 未分配的状态
+The splits that have been assigned but not successfully checkpointed yet.
+ The assigned but uncheckpointed splits will be associated with each of the checkpoint id they belong to.(看不芯片)
+
+## Top level public interfaces
+Source - A factory style class that helps create SplitEnumerator and SourceReader at runtime.
+SourceSplit - An interface for all the split types.
+SplitEnumerator - Discover the splits and assign them to the SourceReaders
+SplitEnumeratorContext - Provide necessary information to the SplitEnumerator to assign splits and send custom events to the the SourceReaders.
+SplitAssignment - A container class holding the source split assignment for each subtask.
+SourceReader - Read the records from the splits assigned by the SplitEnumerator.
+SourceReaderContext - Provide necessary function to the SourceReader to communicate with SplitEnumerator.
+SourceOutput - A collector style interface to take the records and timestamps emit by the SourceReader.
+WatermarkOutput - An interface for emitting watermark and indicate idleness of the source.
+Watermark - A new Watermark class will be created in the package org.apache.flink.api.common.eventtime. This class will eventually replace the existing Watermark in org.apache.flink.streaming.api.watermark. This change allows flink-core to remain independent of other modules. Given that we will eventually put all the watermark generation into the Source, this change will be necessary. Note that this FLIP does not intended to change the existing way that watermark can be overridden in the DataStream after they are emitted by the source.
+
+
+## 感受到了 接口编程的魅力,通过一组接口
+
 # other
 
 ## 实现协调者

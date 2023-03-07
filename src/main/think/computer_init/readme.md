@@ -82,7 +82,34 @@ https://maven.apache.org/guides/introduction/introduction-to-the-pom.html#Availa
 ```
 mvn validate 
 
-
+# 阿里云 maven  pom
+```
+	<!-- 配置阿里云仓库 -->
+	<repositories>
+		<repository>
+			<id>aliyun-repos</id>
+			<url>https://maven.aliyun.com/repository/public</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>aliyun-repos</id>
+			<url>https://maven.aliyun.com/repository/public</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+```
 # ubuntu slow
 cat /proc/sys/vm/swappiness
 sudo sysctl vm.swappiness=20
