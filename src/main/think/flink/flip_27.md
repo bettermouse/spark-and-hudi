@@ -1,5 +1,57 @@
 # Refactor Source Interface
 https://cwiki.apache.org/confluence/display/FLINK/FLIP-27%3A+Refactor+Source+Interface
+## Generic enumerator-reader communication mechanism
+https://issues.apache.org/jira/browse/FLINK-15099
+
+## Reader Interface and Threading Model
+No closed work loop, so it does not need to manage locking 不要一直运行
+Non-blocking progress methods, to it supports running in an actor/mailbox/dispatcher style operator 不要阻碍
+All methods called by the same on single thread, so implementors need not deal with concurrency
+Watermark / Event time handling abstracted to be extensible for split-awareness and alignment (see below sections "Per Split Event-time" and "Event-time Alignment")
+All readers should naturally supports state and checkpoints
+Watermark generation should be circumvented for batch execution
+
+how to do 
+Splits 用来做savepoint和作业分配,分配作业和从状态恢复对于reader是相同的
+促进reader不阻赛,返回一个future
+建立高级别的higher-level primitives
+将event time /water mark 藏在SourceOutput 中,通过不同的 source contexts来区分它们.
+The SourceOutput also abstract the per-partition watermark tracking.
+
+The SourceReader will run as a PushingAsyncDataInput which works well with 
+the new mailbox threading model in the tasks, similar to the network inputs.
+### what is PushingAsyncDataInput
+emitNext(DataOutput)
+## Base implementation and high-level readers
+https://baijiahao.baidu.com/s?id=1717551675940977107&wfr=spider&for=pc
+Most  connectors are not asynchronous,We should add a new thread.
+We hope  to solve this by building higher level source abstractions that offer simpler interfaces that allow for blocking calls.
+These higher level abstractions would also solve the issue of sources that handle multiple splits concurrently, and the per-split event time logic.
+
+categories
+One reader single splits. (Some dead simple blocking readers)
+One reader multiple splits.
+    Sequential Single Split (File, database query, most bounded splits) 顺序
+    Multi-split multiplexed (Kafka, Pulsar, Pravega, ...) 多路复用
+    Multi-split multi-threaded (Kinesis, ...) 多切片/多线程
+splitThread one/many  consume one/many
+org.apache.flink.connector.base.source.reader.splitreader.SplitReader 读取数据
+org.apache.flink.connector.base.source.reader.RecordsWithSplitIds 返回的接口
+
+RecordEmitter 数据来源于 RecordsWithSplitIds
+Convert the raw record type <E> into the eventual record type <T>
+Provide an event time timestamp for the record that it processes.
+
+With the base implementation users writing their own source can just focus on:
+从外部系统获取数据
+Fetch records from external system.
+执行记录解析和转换
+Perform record parsing and conversion.
+Extract timestamps and optionally deal with watermarks. A followup FLIP will provide some default behaviors for users to deal with their watermark.
+### flip-126
+https://cwiki.apache.org/confluence/display/FLINK/FLIP-126%3A+Unify+%28and+separate%29+Watermark+Assigners
+# other
+
 ## 实现协调者
 https://issues.apache.org/jira/browse/FLINK-15099
 ## 状态恢复

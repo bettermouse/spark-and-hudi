@@ -349,3 +349,49 @@ BoundedInMemoryExecutor
   }
 ```
 https://stackoverflow.com/questions/6934738/scala-object-module
+
+
+# clinet table execu
+## BaseHoodieClient
+### BaseHoodieWriteClient
+spark/java/flink implement
+```
+  public List<WriteStatus> insert(List<HoodieRecord<T>> records, String instantTime) {
+    HoodieTable<T, List<HoodieRecord<T>>, List<HoodieKey>, List<WriteStatus>> table =
+        initTable(WriteOperationType.INSERT, Option.ofNullable(instantTime));
+    table.validateInsertSchema();
+    preWrite(instantTime, WriteOperationType.INSERT, table.getMetaClient());
+    // create the write handle if not exists
+    HoodieWriteMetadata<List<WriteStatus>> result;
+    try (AutoCloseableWriteHandle closeableHandle = new AutoCloseableWriteHandle(records, instantTime, table)) {
+      result = ((HoodieFlinkTable<T>) table).insert(context, closeableHandle.getWriteHandle(), instantTime, records);
+    }
+    if (result.getIndexLookupDuration().isPresent()) {
+      metrics.updateIndexMetrics(LOOKUP_STR, result.getIndexLookupDuration().get().toMillis());
+    }
+    return postWrite(result, instantTime, table);
+  }
+```
+in execute method,this menthod will 
+1.get HoodieTable
+2.preWrite
+3.table.doSomething
+4.postWrite
+#### table.doSomething
+BaseCommitActionExecutor
+FlinkWriteHelper.newInstance().write in this,
+executor.execute(inputRecords);
+
+
+```
+  public HoodieWriteMetadata<List<WriteStatus>> execute() {
+    return FlinkWriteHelper.newInstance().write(instantTime, inputRecords, context, table,
+        config.shouldCombineBeforeInsert(), config.getInsertShuffleParallelism(), this, operationType);
+  }
+```
+## table 
+### HoodieTable
+flink/spark/java
+
+## executor
+### BaseActionExecutor
