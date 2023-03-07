@@ -86,5 +86,88 @@ org.apache.flink.streaming.runtime.tasks.StreamTask#executeRestore
 这里面有状态恢复的代码
 org.apache.flink.streaming.runtime.tasks.StreamTask#restoreGates
 ```
+### streamTask子类
+org.apache.flink.streaming.runtime.tasks.StreamTask#inputProcessor
+find by button find usage 
+
+### AbstractInvokable 
+该类在 Task中被初始化,是streamTask 实现的接口
+all of subclass of this class.Must have a constractor with 1 fields
+```
+    private static AbstractInvokable loadAndInstantiateInvokable(
+            ClassLoader classLoader, String className, Environment environment) throws Throwable {
+
+        final Class<? extends AbstractInvokable> invokableClass;
+        try {
+            invokableClass =
+                    Class.forName(className, true, classLoader).asSubclass(AbstractInvokable.class);
+        } catch (Throwable t) {
+            throw new Exception("Could not load the task's invokable class.", t);
+        }
+
+        Constructor<? extends AbstractInvokable> statelessCtor;
+
+        try {
+            statelessCtor = invokableClass.getConstructor(Environment.class);
+        } catch (NoSuchMethodException ee) {
+            throw new FlinkException("Task misses proper constructor", ee);
+        }
+
+```
+## StreamInputProcessor
+被StreamTask处理记录的接口
 
 ## org.apache.flink.runtime.taskmanager.Task
+
+# mailbox
+https://blog.csdn.net/qq_21383435/article/details/122771535
+```
+class StreamTask {
+    protected void processInput(MailboxDefaultAction.Controller controller) throws Exception {
+        InputStatus status = inputProcessor.processInput(); //处理输入
+        if (status == InputStatus.MORE_AVAILABLE && recordWriter.isAvailable()) {
+            return;
+        }
+        if (status == InputStatus.END_OF_INPUT) {
+            // 没有后续的输入了，告知 MailboxDefaultAction.Controller 
+            controller.allActionsCompleted();
+            return;
+        }
+
+        // 暂时没有输入的情况
+        TaskIOMetricGroup ioMetrics = getEnvironment().getMetricGroup().getIOMetricGroup();
+        TimerGauge timer;
+        CompletableFuture<?> resumeFuture;
+        if (!recordWriter.isAvailable()) {
+            timer = ioMetrics.getBackPressuredTimePerSecond();
+            resumeFuture = recordWriter.getAvailableFuture();
+        } else {
+            timer = ioMetrics.getIdleTimeMsPerSecond();
+            resumeFuture = inputProcessor.getAvailableFuture();
+        }
+        // 一旦有输入了，就告知 controller 要恢复 MailboxDefaultAction 的处理
+        assertNoException(
+                resumeFuture.thenRun(
+                        // 首先会暂停 MailboxDefaultAction 的处理
+                        new ResumeWrapper(controller.suspendDefaultAction(timer), timer)));
+    }
+
+    private static class ResumeWrapper implements Runnable {
+        private final Suspension suspendedDefaultAction;
+        private final TimerGauge timer;
+
+        public ResumeWrapper(Suspension suspendedDefaultAction, TimerGauge timer) {
+            this.suspendedDefaultAction = suspendedDefaultAction;
+            timer.markStart();
+            this.timer = timer;
+        }
+
+        @Override
+        public void run() {
+            timer.markEnd();
+            suspendedDefaultAction.resume();
+        }
+    }
+}
+
+```

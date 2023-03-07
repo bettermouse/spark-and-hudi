@@ -335,3 +335,63 @@ df.write().partitionBy("datestr").format("parquet").mode(SaveMode.Overwrite).sav
 ```
 注意这个handler不是IO handler,将读取数据作为 HoodieExecutor 的生产者,HoodieIOHandle中的读,
 HoodieIOHandle中的写当作消费者
+
+# flink 在每个partition内,执行的代码
+BoundedInMemoryExecutor
+通过BoundedInMemoryQueue,协调并发产(多个)和消费的执行器,这个类将 大小限制,队列生产者,消费者,转换器
+作为输入,同时,暴露API来编排这些参与者的并发执行通过一个中央的有界队列
+```
+//速率,输入,消费者,转换器
+  public BoundedInMemoryExecutor(final long bufferLimitInBytes, final Iterator<I> inputItr,
+                                 HoodieConsumer<O, E> consumer, Function<I, O> transformFunction, Runnable preExecuteRunnable) {
+    this(bufferLimitInBytes, Collections.singletonList(new IteratorBasedQueueProducer<>(inputItr)),
+        Option.of(consumer), transformFunction, new DefaultSizeEstimator<>(), preExecuteRunnable);
+  }
+```
+https://stackoverflow.com/questions/6934738/scala-object-module
+
+
+# clinet table execu
+## BaseHoodieClient
+### BaseHoodieWriteClient
+spark/java/flink implement
+```
+  public List<WriteStatus> insert(List<HoodieRecord<T>> records, String instantTime) {
+    HoodieTable<T, List<HoodieRecord<T>>, List<HoodieKey>, List<WriteStatus>> table =
+        initTable(WriteOperationType.INSERT, Option.ofNullable(instantTime));
+    table.validateInsertSchema();
+    preWrite(instantTime, WriteOperationType.INSERT, table.getMetaClient());
+    // create the write handle if not exists
+    HoodieWriteMetadata<List<WriteStatus>> result;
+    try (AutoCloseableWriteHandle closeableHandle = new AutoCloseableWriteHandle(records, instantTime, table)) {
+      result = ((HoodieFlinkTable<T>) table).insert(context, closeableHandle.getWriteHandle(), instantTime, records);
+    }
+    if (result.getIndexLookupDuration().isPresent()) {
+      metrics.updateIndexMetrics(LOOKUP_STR, result.getIndexLookupDuration().get().toMillis());
+    }
+    return postWrite(result, instantTime, table);
+  }
+```
+in execute method,this menthod will 
+1.get HoodieTable
+2.preWrite
+3.table.doSomething
+4.postWrite
+#### table.doSomething
+BaseCommitActionExecutor
+FlinkWriteHelper.newInstance().write in this,
+executor.execute(inputRecords);
+
+
+```
+  public HoodieWriteMetadata<List<WriteStatus>> execute() {
+    return FlinkWriteHelper.newInstance().write(instantTime, inputRecords, context, table,
+        config.shouldCombineBeforeInsert(), config.getInsertShuffleParallelism(), this, operationType);
+  }
+```
+## table 
+### HoodieTable
+flink/spark/java
+
+## executor
+### BaseActionExecutor
