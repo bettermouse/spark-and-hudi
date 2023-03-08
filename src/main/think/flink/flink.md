@@ -1,3 +1,6 @@
+# time-consuming plug in flink
+git-commit-id-plugin
+spotless-maven-plugin
 # flink 本地模式设置 savepoint
 ## 方法一
 ```
