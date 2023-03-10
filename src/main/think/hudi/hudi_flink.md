@@ -36,3 +36,16 @@ org.apache.flink.streaming.runtime.tasks.StreamTask#executeInvoke
 org.apache.flink.streaming.runtime.tasks.StreamTask#notifyCheckpointOperation
 
 # MailboxExecutor 转到flink里面去
+
+## go on 
+StreamReadMonitoringFunction
+may be in this class.list file spend a long time ?
+
+## 数据同步问题
+https://github.com/apache/hudi/pull/8079
+I can not understand now.
+
+
+
+### learn StreamReadMonitoringFunction class and TestStreamReadMonitoringFunction
+

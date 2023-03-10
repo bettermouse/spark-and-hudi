@@ -80,9 +80,18 @@ SourceOutput - A collector style interface to take the records and timestamps em
 WatermarkOutput - An interface for emitting watermark and indicate idleness of the source.
 Watermark - A new Watermark class will be created in the package org.apache.flink.api.common.eventtime. This class will eventually replace the existing Watermark in org.apache.flink.streaming.api.watermark. This change allows flink-core to remain independent of other modules. Given that we will eventually put all the watermark generation into the Source, this change will be necessary. Note that this FLIP does not intended to change the existing way that watermark can be overridden in the DataStream after they are emitted by the source.
 
+SourceOutput
+SourceReader emits records by  SourceOutput(ReaderOutput)
+可以发送watermark/record 到下游处理
+The interface provided by Flink task to the {@link SourceReader} to emit records to downstream operators for message processing.
+
+ReaderOutput 是一个SourceOutput,建议仅处理一个split,比如批处理
+大部分source 是split-specific outputs
 
 ## 感受到了 接口编程的魅力,通过一组接口
-
+ReaderOutput 比如 
+StreamingReaderOutput
+An implementation of TimestampsAndWatermarks where all watermarking/event-time operations are no-ops. This should be used in execution contexts where no watermarks are needed, for example in BATCH execution mode.
 # other
 
 ## 实现协调者

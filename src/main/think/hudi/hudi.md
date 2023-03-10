@@ -395,3 +395,30 @@ flink/spark/java
 
 ## executor
 ### BaseActionExecutor
+
+
+##  EmbeddedTimelineService
+### EmbeddedTimelineService
+Timeline Service that runs as part of write client.
+### RemoteHoodieTableFileSystemView
+A proxy for table file-system view which translates local View API calls to 
+REST calls to remote timeline service.
+### TimelineService
+A standalone timeline service exposing File-System View interfaces to clients.
+exposing interface by Javalin ,and process request by RequestHandler 
+#### RequestHandler
+Main REST Handler class that handles and delegates calls to timeline relevant handlers.
+
+why need to list file in a partition? just read from the metadata?
+Probably in a long time,The file groups are large ?
+
+
+# 元数据
+## HoodieTableMetaClient
+HoodieTableMetaClient allows to access meta-data about a hoodie table It returns meta-data about commits, savepoints, compactions, cleanups as a HoodieTimeline Create an instance of the HoodieTableMetaClient with FileSystem and basePath to start getting the meta-data.
+All the timelines are computed lazily, once computed the timeline is cached and never refreshed. Use the HoodieTimeline.reload() to refresh timelines.
+## HoodieTimeline
+HoodieTimeline is a view of meta-data instants in the hoodie table. Instants are specific points in time represented as HoodieInstant.
+Timelines are immutable once created and operations create new instance of timelines which filter on the instants and this can be chained.
+
+ metaClient.getActiveTimeline()

@@ -1,6 +1,6 @@
 # time-consuming plug in flink
 git-commit-id-plugin
-spotless-maven-plugin
+spotless-maven-plugin  -Dspotless.check.skip=true
 # flink 本地模式设置 savepoint
 ## 方法一
 ```
@@ -174,3 +174,6 @@ class StreamTask {
 }
 
 ```
+
+# maven flink 编译
+mvn  install -DsocksProxyHost=127.0.0.1 -DsocksProxyPort=10808  -DskipTests -Drat.skip=true -T 8 -Dskip.npm

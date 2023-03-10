@@ -15,3 +15,9 @@ contract 合同，契约 收缩，缩小
 contradict 反驳，否认
 obviate 排除；避免；消除
 scalable 可攀登的；可去鳞的；可称量的
+legacy 遗留
+harness 工具
+corner cases 
+pose 造成 引起
+holistic 整体的，全面的；功能整体性的
+various pieces 
