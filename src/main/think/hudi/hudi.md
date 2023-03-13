@@ -417,6 +417,52 @@ Probably in a long time,The file groups are large ?
 ## HoodieTableMetaClient
 HoodieTableMetaClient allows to access meta-data about a hoodie table It returns meta-data about commits, savepoints, compactions, cleanups as a HoodieTimeline Create an instance of the HoodieTableMetaClient with FileSystem and basePath to start getting the meta-data.
 All the timelines are computed lazily, once computed the timeline is cached and never refreshed. Use the HoodieTimeline.reload() to refresh timelines.
+```
+metaClient.getBasePathV2()
+
+HoodieInstant instant = new HoodieInstant(true, HoodieTimeline.COMMIT_ACTION, "1");
+commitTimeline.createNewInstant(instant);
+commitTimeline.saveAsComplete(instant, Option.of("test-detail".getBytes()));
+
+timestamp_action_state 是在文件名上的内容
+### state
+  public enum State {
+    // Requested State (valid state for Compaction)
+    REQUESTED,
+    // Inflight instant
+    INFLIGHT,
+    // Committed instant
+    COMPLETED,
+    // Invalid instant
+    NIL
+  }
+
+meta 元数据文件
+.schema  
+
+org.apache.hudi.common.table.timeline.HoodieInstant#getFileName
+commit 
+    instantTime.inflight
+    instantTime.commit.requested
+    instantTime.commit
+clean 
+    instantTime.clean.inflight
+    instantTime.clean.requested
+    instantTime.clean
+deltacommit
+    instantTime.deltacommit.inflight
+    instantTime.deltacommit.requested
+    instantTime.deltacommit
+```
+```
+      val tableMetaClient = if (tableExists) {
+        HoodieTableMetaClient.builder
+          .setConf(sparkContext.hadoopConfiguration)
+          .setBasePath(path)
+          .build()
+或者
+org.apache.hudi.common.table.HoodieTableMetaClient.initTableAndGetMetaClient
+```
 ## HoodieTimeline
 HoodieTimeline is a view of meta-data instants in the hoodie table. Instants are specific points in time represented as HoodieInstant.
 Timelines are immutable once created and operations create new instance of timelines which filter on the instants and this can be chained.
