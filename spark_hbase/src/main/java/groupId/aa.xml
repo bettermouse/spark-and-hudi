@@ -1,0 +1,13 @@
+<configuration>
+    <property>
+        <name>aaaa</name>
+        <value>org.apache.hadoop.hbase.master.cleaner.TimeToLiveHFileCleaner,org.apache.hadoop.hbase.master.cleaner.TimeToLiveMasterLocalStoreHFileCleaner</value>
+        <description>A comma-separated list of BaseHFileCleanerDelegate invoked by
+            the HFileCleaner service. These HFiles cleaners are called in order,
+            so put the cleaner that prunes the most files in front. To
+            implement your own BaseHFileCleanerDelegate, just put it in HBase's classpath
+            and add the fully qualified class name here. Always add the above
+            default hfile cleaners in the list as they will be overwritten in
+            hbase-site.xml.</description>
+    </property>
+</configuration>

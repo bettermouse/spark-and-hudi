@@ -1,0 +1,13 @@
+/.idea/
+/hudi_spark_13/hudi_spark_13.iml
+/spark-and-hudi.iml
+/common/common.iml
+/hudi_spark_13/target
+/common/target
+/src/main/think/hudi/flink/rfc_13_flink/hudi-flink/hudi-flink_2.11.iml
+/mysql/mysql.iml
+<<<<<<< HEAD
+/dezebium/dezebium.iml
+/debezium/debezium.iml
+=======
+>>>>>>> parent of 067ca1b (add)
